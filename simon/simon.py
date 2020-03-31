@@ -23,9 +23,22 @@ BUTTONS = [BTN_GREEN, BTN_RED, BTN_BLUE, BTN_YELLOW]
 
 SIZE = 4
 
-ROUNDS = 20
+ROUNDS = 4
 sequence = list()
-n = 0
+x = 0
+ok = True
+
+def pushButton(channel):
+    global x
+    global sequence
+    global ok
+    if GPIO.input(channel):
+        i = BUTTONS.index(channel)
+        printLed(LEDS[i])
+        if sequence[x] == i:
+            x += 1
+        else:
+            ok = False
 
 def config():
     GPIO.setwarnings(False)
@@ -34,6 +47,7 @@ def config():
     for i in range(SIZE):
         GPIO.setup(LEDS[i], GPIO.OUT)
         GPIO.setup(BUTTONS[i], GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
+        GPIO.add_event_detect(BUTTONS[i], GPIO.RISING, callback = pushButton)
 
 def randomSequence():
     sequence = list()
@@ -55,15 +69,28 @@ def printSequence(sequence, n):
         time.sleep(1)
 
 def main():
+    global ok
     global sequence
-    global n
+    global x
     try:
         #configuración
         config()
         #nueva secuencia
         sequence,n = randomSequence()
-        n = 5
-        printSequence (sequence, n)
+        #rondas
+        while n<=ROUNDS and ok:
+            print("Nueva ronda: ",n)
+            printSequence (sequence, n)
+            #pulsaciones
+            x = 0
+            while True:
+                if x == n or not ok:
+                    break
+            n += 1
+        if ok:
+            print("WIN!!!")
+        else:
+            print("FAIL!!!")
     finally:
         GPIO.cleanup()
 
