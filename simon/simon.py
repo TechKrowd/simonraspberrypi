@@ -68,6 +68,20 @@ def printSequence(sequence, n):
         print(sequence[i])
         time.sleep(1)
 
+def printFail():
+    for i in range(3):
+        GPIO.output(LED_RED,GPIO.HIGH)
+        time.sleep(.500)
+        GPIO.output(LED_RED,GPIO.LOW)
+        time.sleep(.500)
+
+def printWin():
+    for i in range(3):
+        for led in LEDS:
+            GPIO.output(led,GPIO.HIGH)
+            time.sleep(.500)
+            GPIO.output(led,GPIO.LOW)
+
 def main():
     global ok
     global sequence
@@ -89,8 +103,10 @@ def main():
             n += 1
         if ok:
             print("WIN!!!")
+            printWin()
         else:
             print("FAIL!!!")
+            printFail()
     finally:
         GPIO.cleanup()
 
